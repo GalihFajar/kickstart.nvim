@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -176,7 +176,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+-- vim.keymap.set('n', '<lefcmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 -- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
@@ -255,6 +255,7 @@ require('lazy').setup({
       },
     },
   },
+  { 'm4xshen/autoclose.nvim', opts = {} },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -452,8 +453,333 @@ require('lazy').setup({
   },
   { 'Bilal2453/luvit-meta', lazy = true },
   {
+    'cuducos/yaml.nvim',
+    ft = { 'yaml', 'yml' }, -- optional
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-telescope/telescope.nvim', -- optional
+    },
+    opts = {},
+  },
+  {
+    'p00f/clangd_extensions.nvim',
+    keys = {
+      { '<leader>ch', '<cmd>ClangdSwitchSourceHeader<cr>', desc = 'Switch Source/Header (C/C++)' },
+      {
+        '<leader>cm',
+        function()
+          local file_path = vim.fn.expand '%:p'
+          local file_out = vim.fn.expand '%:p:r' .. '.o'
+          local command = '!g++ -std=c++11 ' .. file_path .. ' -o ' .. file_out
+
+          vim.cmd(command)
+        end,
+        desc = 'Cpp Compile',
+        silent = false,
+      },
+      {
+        '<leader>cr',
+        function()
+          local file_out = vim.fn.expand '%:p:r' .. '.o'
+
+          vim.cmd('!' .. file_out)
+        end,
+        desc = 'Cpp Run',
+        silent = false,
+      },
+      {
+        '<leader>cri',
+        function()
+          -- local file_out = vim.fn.expand '%:p:r' .. '.o'
+          local in_file = vim.fn.expand '%:p:h' .. '/in.in'
+          local file_out = vim.fn.expand '%:p:r' .. '.o'
+          local command = file_out .. ' < ' .. in_file
+
+          vim.cmd('!' .. command)
+          --
+          -- vim.cmd('!' .. file_out)
+        end,
+        desc = 'Cpp Run With Input',
+        silent = false,
+      },
+      {
+        '<leader>crio',
+        function()
+          -- local file_out = vim.fn.expand '%:p:r' .. '.o'
+          local in_file = vim.fn.expand '%:p:h' .. '/in.in'
+          local file_out = vim.fn.expand '%:p:r' .. '.o'
+          local command = file_out .. ' < ' .. in_file .. ' > ' .. vim.fn.expand '%:p:h' .. '/out.out'
+
+          vim.cmd('!' .. command)
+          --
+          -- vim.cmd('!' .. file_out)
+        end,
+        desc = 'Cpp Run With Input & Output To File',
+        silent = false,
+      },
+    },
+    opts = {
+      inlay_hints = {
+        inline = false,
+      },
+      ast = {
+        --These require codicons (https://github.com/microsoft/vscode-codicons)
+        role_icons = {
+          type = '',
+          declaration = '',
+          expression = '',
+          specifier = '',
+          statement = '',
+          ['template argument'] = '',
+        },
+        kind_icons = {
+          Compound = '',
+          Recovery = '',
+          TranslationUnit = '',
+          PackExpansion = '',
+          TemplateTypeParm = '',
+          TemplateTemplateParm = '',
+          TemplateParamObject = '',
+        },
+      },
+    },
+  },
+  {
+    'folke/tokyonight.nvim',
+    lazy = false,
+    priority = 1000,
+    opts = {},
+  },
+  -- {
+  --   'mfussenegger/nvim-jdtls',
+  --   dependencies = { 'folke/which-key.nvim', 'LazyVim/LazyVim', 'folke/lazy.nvim' },
+  --   ft = { 'java' },
+  --   opts = function()
+  --     local mason_registry = require 'mason-registry'
+  --     -- local lombok_jar = mason_registry.get_package('jdtls'):get_install_path() .. '/lombok.jar'
+  --     local lombok_jar = vim.fn.expand '/Users/galih.ady/.local/share/nvim/mason/packages/jdtls/lombok.jar'
+  --     local LazyVim = require 'lazyvim.util'
+  --
+  --     return {
+  --       -- How to find the root dir for a given filename. The default comes from
+  --       -- lspconfig which provides a function specifically for java projects.
+  --       root_dir = LazyVim.lsp.get_raw_config('jdtls').default_config.root_dir,
+  --
+  --       -- How to find the project name for a given root dir.
+  --       project_name = function(root_dir)
+  --         return root_dir and vim.fs.basename(root_dir)
+  --       end,
+  --
+  --       -- Where are the config and workspace dirs for a project?
+  --       jdtls_config_dir = function(project_name)
+  --         return vim.fn.stdpath 'cache' .. '/jdtls/' .. project_name .. '/config'
+  --       end,
+  --       jdtls_workspace_dir = function(project_name)
+  --         return vim.fn.stdpath 'cache' .. '/jdtls/' .. project_name .. '/workspace'
+  --       end,
+  --
+  --       -- How to run jdtls. This can be overridden to a full java command-line
+  --       -- if the Python wrapper script doesn't suffice.
+  --       cmd = {
+  --         vim.fn.exepath 'jdtls',
+  --         string.format('--jvm-arg=-javaagent:%s', lombok_jar),
+  --       },
+  --       full_cmd = function(opts)
+  --         local fname = vim.api.nvim_buf_get_name(0)
+  --         local root_dir = opts.root_dir(fname)
+  --         local project_name = opts.project_name(root_dir)
+  --         local cmd = vim.deepcopy(opts.cmd)
+  --         if project_name then
+  --           vim.list_extend(cmd, {
+  --             '-configuration',
+  --             opts.jdtls_config_dir(project_name),
+  --             '-data',
+  --             opts.jdtls_workspace_dir(project_name),
+  --           })
+  --         end
+  --         return cmd
+  --       end,
+  --
+  --       -- These depend on nvim-dap, but can additionally be disabled by setting false here.
+  --       dap = { hotcodereplace = 'auto', config_overrides = {} },
+  --       dap_main = {},
+  --       test = true,
+  --       settings = {
+  --         java = {
+  --           inlayHints = {
+  --             parameterNames = {
+  --               enabled = 'all',
+  --             },
+  --           },
+  --         },
+  --       },
+  --     }
+  --   end,
+  --   config = function(_, opts)
+  --     -- Find the extra bundles that should be passed on the jdtls command-line
+  --     -- if nvim-dap is enabled with java debug/test.
+  --     local mason_registry = require 'mason-registry'
+  --     local bundles = {} ---@type string[]
+  --     local LazyVim = require 'lazyvim.util'
+  --     if opts.dap and LazyVim.has 'nvim-dap' and mason_registry.is_installed 'java-debug-adapter' then
+  --       local java_dbg_pkg = mason_registry.get_package 'java-debug-adapter'
+  --       local java_dbg_path = java_dbg_pkg:get_install_path()
+  --       local jar_patterns = {
+  --         java_dbg_path .. '/extension/server/com.microsoft.java.debug.plugin-*.jar',
+  --       }
+  --       -- java-test also depends on java-debug-adapter.
+  --       if opts.test and mason_registry.is_installed 'java-test' then
+  --         local java_test_pkg = mason_registry.get_package 'java-test'
+  --         local java_test_path = java_test_pkg:get_install_path()
+  --         vim.list_extend(jar_patterns, {
+  --           java_test_path .. '/extension/server/*.jar',
+  --         })
+  --       end
+  --       for _, jar_pattern in ipairs(jar_patterns) do
+  --         for _, bundle in ipairs(vim.split(vim.fn.glob(jar_pattern), '\n')) do
+  --           table.insert(bundles, bundle)
+  --         end
+  --       end
+  --     end
+  --
+  --     local function attach_jdtls()
+  --       local fname = vim.api.nvim_buf_get_name(0)
+  --       local function extend_or_override(config, custom, ...)
+  --         if type(custom) == 'function' then
+  --           config = custom(config, ...) or config
+  --         elseif custom then
+  --           config = vim.tbl_deep_extend('force', config, custom) --[[@as table]]
+  --         end
+  --         return config
+  --       end
+  --
+  --       -- Configuration can be augmented and overridden by opts.jdtls
+  --       local config = extend_or_override({
+  --         cmd = opts.full_cmd(opts),
+  --         root_dir = opts.root_dir(fname),
+  --         init_options = {
+  --           bundles = bundles,
+  --         },
+  --         settings = opts.settings,
+  --         -- enable CMP capabilities
+  --         capabilities = LazyVim.has 'cmp-nvim-lsp' and require('cmp_nvim_lsp').default_capabilities() or nil,
+  --       }, opts.jdtls)
+  --
+  --       -- Existing server will be reused if the root_dir matches.
+  --       require('jdtls').start_or_attach(config)
+  --       -- not need to require("jdtls.setup").add_commands(), start automatically adds commands
+  --     end
+  --
+  --     -- Attach the jdtls for each java buffer. HOWEVER, this plugin loads
+  --     -- depending on filetype, so this autocmd doesn't run for the first file.
+  --     -- For that, we call directly below.
+  --     vim.api.nvim_create_autocmd('FileType', {
+  --       pattern = java_filetypes,
+  --       callback = attach_jdtls,
+  --     })
+  --
+  --     -- Setup keymap and dap after the lsp is fully attached.
+  --     -- https://github.com/mfussenegger/nvim-jdtls#nvim-dap-configuration
+  --     -- https://neovim.io/doc/user/lsp.html#LspAttach
+  --     vim.api.nvim_create_autocmd('LspAttach', {
+  --       callback = function(args)
+  --         local client = vim.lsp.get_client_by_id(args.data.client_id)
+  --         if client and client.name == 'jdtls' then
+  --           local wk = require 'which-key'
+  --           wk.add {
+  --             {
+  --               mode = 'n',
+  --               buffer = args.buf,
+  --               { '<leader>cx', group = 'extract' },
+  --               { '<leader>cxv', require('jdtls').extract_variable_all, desc = 'Extract Variable' },
+  --               { '<leader>cxc', require('jdtls').extract_constant, desc = 'Extract Constant' },
+  --               { 'gs', require('jdtls').super_implementation, desc = 'Goto Super' },
+  --               { 'gS', require('jdtls.tests').goto_subjects, desc = 'Goto Subjects' },
+  --               { '<leader>co', require('jdtls').organize_imports, desc = 'Organize Imports' },
+  --             },
+  --           }
+  --           wk.add {
+  --             {
+  --               mode = 'v',
+  --               buffer = args.buf,
+  --               { '<leader>cx', group = 'extract' },
+  --               {
+  --                 '<leader>cxm',
+  --                 [[<ESC><CMD>lua require('jdtls').extract_method(true)<CR>]],
+  --                 desc = 'Extract Method',
+  --               },
+  --               {
+  --                 '<leader>cxv',
+  --                 [[<ESC><CMD>lua require('jdtls').extract_variable_all(true)<CR>]],
+  --                 desc = 'Extract Variable',
+  --               },
+  --               {
+  --                 '<leader>cxc',
+  --                 [[<ESC><CMD>lua require('jdtls').extract_constant(true)<CR>]],
+  --                 desc = 'Extract Constant',
+  --               },
+  --             },
+  --           }
+  --
+  --           if opts.dap and LazyVim.has 'nvim-dap' and mason_registry.is_installed 'java-debug-adapter' then
+  --             -- custom init for Java debugger
+  --             require('jdtls').setup_dap(opts.dap)
+  --             require('jdtls.dap').setup_dap_main_class_configs(opts.dap_main)
+  --
+  --             -- Java Test require Java debugger to work
+  --             if opts.test and mason_registry.is_installed 'java-test' then
+  --               -- custom keymaps for Java test runner (not yet compatible with neotest)
+  --               wk.add {
+  --                 {
+  --                   mode = 'n',
+  --                   buffer = args.buf,
+  --                   { '<leader>t', group = 'test' },
+  --                   {
+  --                     '<leader>tt',
+  --                     function()
+  --                       require('jdtls.dap').test_class {
+  --                         config_overrides = type(opts.test) ~= 'boolean' and opts.test.config_overrides or nil,
+  --                       }
+  --                     end,
+  --                     desc = 'Run All Test',
+  --                   },
+  --                   {
+  --                     '<leader>tr',
+  --                     function()
+  --                       require('jdtls.dap').test_nearest_method {
+  --                         config_overrides = type(opts.test) ~= 'boolean' and opts.test.config_overrides or nil,
+  --                       }
+  --                     end,
+  --                     desc = 'Run Nearest Test',
+  --                   },
+  --                   { '<leader>tT', require('jdtls.dap').pick_test, desc = 'Run Test' },
+  --                 },
+  --               }
+  --             end
+  --           end
+  --
+  --           -- User can set additional keymaps in opts.on_attach
+  --           if opts.on_attach then
+  --             opts.on_attach(args)
+  --           end
+  --         end
+  --       end,
+  --     })
+  --
+  --     -- Avoid race condition by calling attach the first time, since the autocmd won't fire.
+  --     attach_jdtls()
+  --   end,
+  -- },
+  {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
+    opts = {
+      -- setup = {
+      --   jdtls = function()
+      --     return true
+      --   end,
+      -- },
+    },
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
       { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
@@ -543,9 +869,15 @@ require('lazy').setup({
           -- or a suggestion from your LSP for this to activate.
           map('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction', { 'n', 'x' })
 
+          -- Opens a popup that displays documentation about the word under your cursor
+          -- See `:help K` for why this keymap
+          map('<leader>K', vim.lsp.buf.hover, 'Hover Documentation')
+
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+          -- map( '<leader>ch', '<cmd>ClangdSwitchSourceHeader<cr>', 'Switch Source/Header (C/C++)' )
+          -- map('<leader>cm', '<cmd>!g++ -std=c++11 /Users/galih.ady/gitgud-programming/cpp/cp/cp4/ch2.cpp -o run', )
 
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
@@ -613,9 +945,113 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+      --
+      --
+      --
       local servers = {
-        -- clangd = {},
-        -- gopls = {},
+        clangd = {
+          keys = {
+            { '<leader>ch', '<cmd>ClangdSwitchSourceHeader<cr>', desc = 'Switch Source/Header (C/C++)' },
+            { asdf, '<cmd>!g++ -std=c++11 /Users/galih.ady/gitgud-programming/cpp/cp/cp4/ch2.cpp -o run<cr>', desc = 'Compile Cpp', silent = false },
+          },
+          root_dir = function(fname)
+            return require('lspconfig.util').root_pattern(
+              'Makefile',
+              'configure.ac',
+              'configure.in',
+              'config.h.in',
+              'meson.build',
+              'meson_options.txt',
+              'build.ninja'
+            )(fname) or require('lspconfig.util').root_pattern('compile_commands.json', 'compile_flags.txt')(fname) or require('lspconfig.util').find_git_ancestor(
+              fname
+            )
+          end,
+          capabilities = {
+            offsetEncoding = { 'utf-16' },
+          },
+          cmd = {
+            'clangd',
+            '--background-index',
+            '--clang-tidy',
+            '--header-insertion=iwyu',
+            '--completion-style=detailed',
+            '--function-arg-placeholders',
+            '--fallback-style=llvm',
+          },
+          init_options = {
+            usePlaceholders = true,
+            completeUnimported = true,
+            clangdFileStatus = true,
+          },
+        },
+        -- jdtls = {},
+        gopls = {
+          settings = {
+            gopls = {
+              gofumpt = true,
+              codelenses = {
+                gc_details = false,
+                generate = true,
+                regenerate_cgo = true,
+                run_govulncheck = true,
+                test = true,
+                tidy = true,
+                upgrade_dependency = true,
+                vendor = true,
+              },
+              hints = {
+                assignVariableTypes = true,
+                compositeLiteralFields = true,
+                compositeLiteralTypes = true,
+                constantValues = true,
+                functionTypeParameters = true,
+                parameterNames = true,
+                rangeVariableTypes = true,
+              },
+              analyses = {
+                fieldalignment = true,
+                nilness = true,
+                unusedparams = true,
+                unusedwrite = true,
+                useany = true,
+              },
+              usePlaceholders = true,
+              completeUnimported = true,
+              staticcheck = true,
+              directoryFilters = { '-.git', '-.vscode', '-.idea', '-.vscode-test', '-node_modules' },
+              semanticTokens = true,
+            },
+          },
+        },
+        elixirls = {
+          keys = {
+            keys = {
+              {
+                '<leader>cp',
+                function()
+                  local params = vim.lsp.util.make_position_params()
+                  vim.lsp.execute {
+                    command = 'manipulatePipes:serverid',
+                    arguments = { 'toPipe', params.textDocument.uri, params.position.line, params.position.character },
+                  }
+                end,
+                desc = 'To Pipe',
+              },
+              {
+                '<leader>cP',
+                function()
+                  local params = vim.lsp.util.make_position_params()
+                  vim.lsp.execute {
+                    command = 'manipulatePipes:serverid',
+                    arguments = { 'fromPipe', params.textDocument.uri, params.position.line, params.position.character },
+                  }
+                end,
+                desc = 'From Pipe',
+              },
+            },
+          },
+        },
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -656,6 +1092,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'clang-format',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -708,6 +1145,7 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        clangd = { 'clang-format' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -720,6 +1158,9 @@ require('lazy').setup({
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
+    -- opts = function(_, opts)
+    --   table.insert(opts.sorting.comparators, 1, require 'clangd_extensions.cmp_scores')
+    -- end,
     dependencies = {
       -- Snippet Engine & its associated nvim-cmp source
       {
@@ -897,7 +1338,29 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'cpp',
+        'java',
+        'go',
+        'gomod',
+        'gowork',
+        'gosum',
+        'elixir',
+        'heex',
+        'ex',
+        'yaml',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -915,8 +1378,35 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+    config = function()
+      -- Configure folding
+      vim.o.foldmethod = 'expr'
+      vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
+      vim.o.foldlevel = 99 -- Avoid files being fully folded on open
+    end,
   },
-
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    branch = 'v3.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+      'MunifTanjim/nui.nvim',
+      -- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
+    },
+    keys = {
+      { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    },
+    opts = {
+      filesystem = {
+        window = {
+          mappings = {
+            ['\\'] = 'close_window',
+          },
+        },
+      },
+    },
+  },
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.

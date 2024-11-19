@@ -1,0 +1,14 @@
+-xc++
+-std=c++11
+-stdlib=libc++
+--target=arm64-apple-darwin23.1.0
+-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1
+-isystem/Library/Developer/CommandLineTools/usr/lib/clang/15.0.0/include
+-isystem/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include
+-isystem/Library/Developer/CommandLineTools/usr/include
+-I/usr/local/include
+-nostdinc++
+-nostdinc
+-Wno-documentation
+-resource-dir=/Library/Developer/CommandLineTools/usr/lib/clang/15.0.0
+
