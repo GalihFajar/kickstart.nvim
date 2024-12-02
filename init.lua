@@ -478,7 +478,7 @@ require('lazy').setup({
         silent = false,
       },
       {
-        '<leader>cr',
+        '<leader>cx',
         function()
           local file_out = vim.fn.expand '%:p:r' .. '.o'
 
@@ -488,7 +488,17 @@ require('lazy').setup({
         silent = false,
       },
       {
-        '<leader>cri',
+        '<leader>cxo',
+        function()
+          local file_out = vim.fn.expand '%:p:r' .. '.o'
+
+          vim.cmd('!' .. file_out .. ' > ' .. vim.fn.expand '%:p:h' .. '/out.out')
+        end,
+        desc = 'Cpp Run',
+        silent = false,
+      },
+      {
+        '<leader>cxi',
         function()
           -- local file_out = vim.fn.expand '%:p:r' .. '.o'
           local in_file = vim.fn.expand '%:p:h' .. '/in.in'
@@ -503,7 +513,7 @@ require('lazy').setup({
         silent = false,
       },
       {
-        '<leader>crio',
+        '<leader>cxio',
         function()
           -- local file_out = vim.fn.expand '%:p:r' .. '.o'
           local in_file = vim.fn.expand '%:p:h' .. '/in.in'
