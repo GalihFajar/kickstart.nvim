@@ -272,6 +272,7 @@ require('lazy').setup({
   -- after the plugin has been loaded:
   --  config = function() ... end
 
+  { 'tpope/vim-rails' },
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
@@ -331,8 +332,11 @@ require('lazy').setup({
   -- The dependencies are proper plugin specifications as well - anything
   -- you do for a plugin at the top level, you can do for a dependency.
   --
-  -- Use the `dependencies` key to specify the dependencies of a particular plugin
-
+  {
+    'b0o/SchemaStore.nvim',
+    lazy = true,
+    version = false, -- last release is way too old
+  }, -- Use the `dependencies` key to specify the dependencies of a particular plugin
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
     event = 'VimEnter',
@@ -783,16 +787,10 @@ require('lazy').setup({
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
-    opts = {
-      -- setup = {
-      --   jdtls = function()
-      --     return true
-      --   end,
-      -- },
-    },
+    opts = {},
     dependencies = {
       -- Automatically install LSPs and related tools to stdpath for Neovim
-      { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
+      { 'williamboman/mason.nvim', config = true, opts = { ensure_installed = { 'erb-formatter', 'erb-lint' } } }, -- NOTE: Must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
@@ -1072,6 +1070,21 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
+        ruby_lsp = {
+          enabled = false,
+        },
+        solargraph = {
+          enabled = true,
+        },
+        rubocop = {
+          -- If Solargraph and Rubocop are both enabled as an LSP,
+          -- diagnostics will be duplicated because Solargraph
+          -- already calls Rubocop if it is installed
+          enabled = true,
+        },
+        standardrb = {
+          enabled = false,
+        },
 
         lua_ls = {
           -- cmd = {...},
@@ -1103,6 +1116,7 @@ require('lazy').setup({
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
         'clang-format',
+        'jsonls',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -1120,7 +1134,6 @@ require('lazy').setup({
       }
     end,
   },
-
   { -- Autoformat
     'stevearc/conform.nvim',
     event = { 'BufWritePre' },
@@ -1304,7 +1317,6 @@ require('lazy').setup({
 
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1370,6 +1382,10 @@ require('lazy').setup({
         'heex',
         'ex',
         'yaml',
+        'json5',
+        'ruby',
+        'ninja',
+        'rst',
       },
       -- Autoinstall languages that are not installed
       auto_install = true,

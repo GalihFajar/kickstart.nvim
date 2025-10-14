@@ -1,0 +1,11 @@
+zc -> fold
+zo -> open fold
+
+<leader>sf -> search file
+<leader>/ -> fuzzy search
+
+\\ -> open/go to Neotree
+
+On Neotree
+a -> new file (can it be new directory? not sure, will try)
+q -> quit
