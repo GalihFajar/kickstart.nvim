@@ -276,6 +276,7 @@ require('lazy').setup({
   --  config = function() ... end
 
   { 'tpope/vim-rails' },
+  { 'iftheshoefritz/solargraph-rails' },
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
