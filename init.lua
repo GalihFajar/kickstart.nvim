@@ -95,6 +95,8 @@ vim.g.have_nerd_font = true
 
 vim.g.lazyvim_ruby_lsp = 'ruby_lsp'
 vim.g.lazyvim_ruby_formatter = 'rubocop'
+vim.g.lazyvim_python_lsp = 'pyright'
+vim.g.lazyvim_python_ruff = 'ruff'
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -563,12 +565,6 @@ require('lazy').setup({
     },
   },
   {
-    'folke/tokyonight.nvim',
-    lazy = false,
-    priority = 1000,
-    opts = {},
-  },
-  {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
     opts = {},
@@ -845,7 +841,7 @@ require('lazy').setup({
             },
           },
         },
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -871,7 +867,7 @@ require('lazy').setup({
           enabled = false,
         },
         standardrb = {
-          enabled = formatter == 'standardrb',
+          enabled = 'standardrb',
           -- enabled = true,
         },
 
@@ -886,6 +882,21 @@ require('lazy').setup({
               },
               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
               -- diagnostics = { disable = { 'missing-fields' } },
+            },
+          },
+        },
+        ruff = {
+          cmd_env = { RUFF_TRACE = 'messages' },
+          init_options = {
+            settings = {
+              logLevel = 'error',
+            },
+          },
+          keys = {
+            {
+              '<leader>co',
+              -- vim.lsp.action['source.organizeImports'],
+              desc = 'Organize Imports',
             },
           },
         },
@@ -1103,7 +1114,7 @@ require('lazy').setup({
       vim.cmd.hi 'Comment gui=none'
     end,
     opts = {
-      transparent = true,
+      transparent = false,
       styles = {
         sidebars = 'transparent',
         floats = 'transparent',
@@ -1150,6 +1161,18 @@ require('lazy').setup({
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
+  {
+    'linux-cultist/venv-selector.nvim',
+    cmd = 'VenvSelect',
+    opts = {
+      options = {
+        notify_user_on_venv_activation = true,
+      },
+    },
+    --  Call config for Python files and load the cached venv automatically
+    ft = 'python',
+    keys = { { '<leader>cv', '<cmd>:VenvSelect<cr>', desc = 'Select VirtualEnv', ft = 'python' } },
+  },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
@@ -1171,6 +1194,7 @@ require('lazy').setup({
         'cpp',
         'java',
         'go',
+        'python',
         'gomod',
         'gowork',
         'gosum',
@@ -1181,6 +1205,8 @@ require('lazy').setup({
         'json5',
         'ruby',
         'ninja',
+        'pyright',
+        'ruff',
         'rst',
       },
       -- Autoinstall languages that are not installed
